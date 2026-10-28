@@ -4,37 +4,47 @@ class Solution {
         int m = grid.length;
         int n = grid[0].length;
 
-        java.util.Set<Integer>[][] dp = new java.util.HashSet[m][n];
+        boolean[][][] dp = new boolean[m][n][1024];
+
+        // Starting cell
+        dp[0][0][grid[0][0]] = true;
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                dp[i][j] = new java.util.HashSet<>();
 
                 if (i == 0 && j == 0) {
-                    dp[i][j].add(grid[i][j]);
                     continue;
                 }
 
+                int val = grid[i][j];
+
+                // Transition from the top cell
                 if (i > 0) {
-                    for (int x : dp[i - 1][j]) {
-                        dp[i][j].add(x ^ grid[i][j]);
+                    for (int x = 0; x < 1024; x++) {
+                        if (dp[i - 1][j][x]) {
+                            dp[i][j][x ^ val] = true;
+                        }
                     }
                 }
 
+                // Transition from the left cell
                 if (j > 0) {
-                    for (int x : dp[i][j - 1]) {
-                        dp[i][j].add(x ^ grid[i][j]);
+                    for (int x = 0; x < 1024; x++) {
+                        if (dp[i][j - 1][x]) {
+                            dp[i][j][x ^ val] = true;
+                        }
                     }
                 }
             }
         }
 
-        int ans = Integer.MAX_VALUE;
-
-        for (int x : dp[m - 1][n - 1]) {
-            ans = Math.min(ans, x);
+        // Find the minimum reachable XOR at the destination
+        for (int x = 0; x < 1024; x++) {
+            if (dp[m - 1][n - 1][x]) {
+                return x;
+            }
         }
 
-        return ans;
+        return -1;
     }
 }
